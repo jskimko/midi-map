@@ -2,6 +2,7 @@
 #define MIDIMAP_HH
 
 #include "RtMidi.h"
+#include "midimap/Controller.hh"
 
 namespace midimap {
 
