@@ -14,8 +14,14 @@ public:
     ~Controller();
 
     std::vector<std::string> getPortNames() const;
+    bool openPort(int port);
+
+    void start();
+    void stop();
 
 private:
+    static void callback(double dt, std::vector<unsigned char> *msg, void *data);
+
     RtMidiIn *input;
 };
 
