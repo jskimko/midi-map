@@ -10,11 +10,13 @@ namespace midimap {
 class MidiMap {
 public:
     static constexpr char *TITLE = "MidiMap";
-
-    MidiMap();
+    static constexpr int FONT_SIZE = 10;
 
     bool run();
+
 private:
+    void draw();
+
     Fl_Window *window;
 };
 
