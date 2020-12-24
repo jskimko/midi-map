@@ -6,12 +6,12 @@
 namespace midimap {
 
 enum class Key {
-    Tilde, One, Two, Three, Four, Five, Six, Seven, Eight, Nine, Zero, Dash, Equal, Backspace,
-    Q, W, E, R, T, Y, U, I, O, P, LeftBracket, RightBracket, Backslash,
-    A, S, D, F, G, H, J, K, L, SemiColon, SingleQuote, Enter,
-    Z, X, C, V, B, N, M, Comma, Period, Slash,
-    Shift, Control, Alt, Space, Up, Down, Left, Right,
-    None
+    TILDE, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, ZERO, DASH, EQUAL, BACKSPACE,
+    Q, W, E, R, T, Y, U, I, O, P, LEFTBRACKET, RIGHTBRACKET, BACKSLASH,
+    A, S, D, F, G, H, J, K, L, SEMICOLON, SINGLEQUOTE, ENTER,
+    Z, X, C, V, B, N, M, COMMA, PERIOD, SLASH,
+    SHIFT, CONTROL, ALT, SPACE, UP, DOWN, LEFT, RIGHT,
+    NONE
 };
 
 std::string key2str(Key key);

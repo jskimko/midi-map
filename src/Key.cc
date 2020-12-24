@@ -19,7 +19,7 @@ std::string key2str(Key key)
 Key 
 readKey()
 {
-    return Key::None;
+    return Key::NONE;
 }
 
 } // namespace midimap

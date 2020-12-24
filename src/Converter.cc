@@ -20,8 +20,8 @@ std::map<unsigned char, std::string> Converter::num2sym = {
 
 Converter::
 Converter()
-    : octaveUp(Key::None),
-      octaveDown(Key::None)
+    : octaveUp(Key::NONE),
+      octaveDown(Key::NONE)
 {
 }
 
