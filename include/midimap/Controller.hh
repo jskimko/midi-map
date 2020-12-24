@@ -1,6 +1,8 @@
 #ifndef MIDIMAP_CONTROLLER_HH
 #define MIDIMAP_CONTROLLER_HH
 
+#include "midimap/Converter.hh"
+
 #include <vector>
 #include <string>
 
@@ -23,6 +25,7 @@ private:
     static void callback(double dt, std::vector<unsigned char> *msg, void *data);
 
     RtMidiIn *input;
+    Converter converter;
 };
 
 } // namespace midimap

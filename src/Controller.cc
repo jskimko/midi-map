@@ -9,7 +9,8 @@ namespace midimap {
 
 Controller::
 Controller() 
-    : input(new RtMidiIn())
+    : input(new RtMidiIn()),
+      converter()
 {
 }
 
