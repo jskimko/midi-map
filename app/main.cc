@@ -5,6 +5,9 @@
 namespace mm = midimap;
 
 int main(int argc, char** argv) {
+    mm::MidiMap midiMap;
+    midiMap.run();
+
     mm::Controller ctrl;
 
     auto names = ctrl.getPortNames();

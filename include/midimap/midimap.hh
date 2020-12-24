@@ -3,9 +3,20 @@
 
 #include "midimap/Controller.hh"
 
+class Fl_Window;
+
 namespace midimap {
 
-void foo();
+class MidiMap {
+public:
+    static constexpr char *TITLE = "MidiMap";
+
+    MidiMap();
+
+    bool run();
+private:
+    Fl_Window *window;
+};
 
 } // namespace midimap
 

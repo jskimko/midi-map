@@ -11,9 +11,17 @@ target_include_directories(midimap-lib
         $<INSTALL_INTERFACE:include>
     PRIVATE
         "${RtMidi_INCLUDE_DIRECTORIES}"
+        "${FLTK_INCLUDE_DIRS}"
 )
 
 target_link_libraries(midimap-lib
     PUBLIC
         RtMidi::rtmidi
+        fltk
 )
+
+target_link_directories(midimap-lib
+    PUBLIC
+        "${FLTK_LIBRARY_DIRS}"
+)
+

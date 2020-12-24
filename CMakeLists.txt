@@ -5,13 +5,18 @@ project(midimap
         LANGUAGES CXX
 )
 
-# RtMidi exports its include directories as PRIVATE, so we need to get it ourselves.
+# RtMidi-4.0.0 exports its include directories as PRIVATE.
 # rtmidi/{bin,lib,include,share}/rtmidi.{dll,lib}
 find_package(RtMidi REQUIRED)
 get_target_property(RtMidi_FILE RtMidi::rtmidi LOCATION) # library file path
 get_filename_component(RtMidi_FILE_DIR "${RtMidi_FILE}" DIRECTORY) # parent dir
 get_filename_component(RtMidi_ROOT_DIR "${RtMidi_FILE_DIR}" DIRECTORY) # root dir
 set(RtMidi_INCLUDE_DIRECTORIES "${RtMidi_ROOT_DIR}/include") # include dir
+
+# FLTK-1.3.5 has a Config file, but does not define library directories.
+find_package(FLTK CONFIG REQUIRED)
+get_filename_component(FLTK_ROOT_DIR "${FLTK_INCLUDE_DIRS}" DIRECTORY) # root dir
+set(FLTK_LIBRARY_DIRS "${FLTK_ROOT_DIR}/lib")
 
 add_subdirectory(app)
 add_subdirectory(src)

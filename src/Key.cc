@@ -1,11 +1,5 @@
 #include "midimap/Key.hh"
-
-#ifdef _WIN32
-#include <windows.h>
-#include <winuser.h>
-#else // assume X11
-#include <X11/extensions/XTest.h>
-#endif // _WIN32
+#include "FL/Fl.H"
 
 namespace midimap {
 
@@ -22,22 +16,10 @@ std::string key2str(Key key)
     return KeyNames[static_cast<int>(key)];
 }
 
-#ifdef _WIN32
-
 Key 
 readKey()
 {
     return Key::None;
 }
-
-#else // assume X11
-
-Key 
-readKey()
-{
-    return Key::None;
-}
-
-#endif // _WIN32
 
 } // namespace midimap
