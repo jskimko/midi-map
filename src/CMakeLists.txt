@@ -2,6 +2,7 @@ add_library(midimap-lib
     midimap.cc
     Controller.cc
     Converter.cc
+    Key.cc
 )
 
 target_include_directories(midimap-lib

@@ -1,12 +1,5 @@
 #include "midimap/Converter.hh"
 
-#ifdef _WIN32
-#include <windows.h>
-#include <winuser.h>
-#else // assume X11
-#include <X11/extensions/XTest.h>
-#endif // _WIN32
-
 namespace midimap {
 
 std::map<unsigned char, std::string> Converter::num2sym = {
@@ -36,28 +29,9 @@ std::string
 Converter::
 symbol(unsigned char num) const
 {
+    auto note = [](unsigned char n) { return ((n - 21) % 12) + 21; };
     auto octave = [](unsigned char n) { return (n - 21) / 12; };
-    return num2sym.at(num) + std::to_string(octave(num));
+    return num2sym.at(note(num)) + std::to_string(octave(num));
 }
-
-#ifdef _WIN32
-
-Key 
-Converter::
-readKey() const
-{
-    return Key::None;
-}
-
-#else // assume X11
-
-Key 
-Converter::
-readKey() const
-{
-    return Key::None;
-}
-
-#endif // _WIN32
 
 } // namespace midimap

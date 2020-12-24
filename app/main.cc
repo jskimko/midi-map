@@ -8,10 +8,10 @@ int main(int argc, char** argv) {
     mm::Controller ctrl;
 
     auto names = ctrl.getPortNames();
-    //    if (names.size() == 0) {
-    //        std::cout << "No ports available.";
-    //        return 0;
-    //    }
+    if (names.size() == 0) {
+        std::cout << "No ports available.";
+        return 0;
+    }
 
     std::cout << "Available ports:\n";
     for (decltype(names.size()) i = 0; i < names.size(); i++) {
@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
 //    ctrl.openPort(port);
     ctrl.openPort(0);
 
-    ctrl.start();
+    ctrl.setup();
 
     std::cout << "\nReading MIDI input ... press <enter> to quit.\n";
     std::cin.ignore();

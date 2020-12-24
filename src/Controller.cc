@@ -1,9 +1,12 @@
 #include "midimap/Controller.hh"
+
 #include "RtMidi.h"
 #include <cstdio>
-#include <sstream>
-#include <iomanip>
-#include <bitset>
+
+namespace {
+    static constexpr unsigned char NOTE_OFF = 0x80;
+    static constexpr unsigned char NOTE_ON  = 0x90;
+}
 
 namespace midimap {
 
@@ -54,40 +57,42 @@ openPort(int port)
 
 void 
 Controller::
-callback(double dt, std::vector<unsigned char> *msg, void *data)
+setupMap(double dt, std::vector<unsigned char> *msg, void *data)
 {
     if (msg->size() == 0) { return; }
+    auto *ctrl = (Controller*) data;
 
-    std::stringstream ss;
-//    int val = 0;
-//    for (int i=0u; i<msg->size(); i++) {
-//        val |= ((*msg)[i] << (i*8));
-//   }
-//    ss << "ts: " << dt << "\n";
-    ss << std::hex << std::setfill('0');
-    unsigned char stat = (*msg)[0] & 0xF0;
-    if (stat == 0x80 || stat == 0x90) {
-        for (int b : *msg) {
-            ss << std::setw(2) << b << " ";
-        }
-        ss << "\n";
+    unsigned char status = (*msg)[0];
+    if ((status & 0xF0) != NOTE_ON) {
+        return;
     }
-//    ss << val << "\n";
-//    for (int b : *msg) {
-//        ss << std::setw(2) << b << " ";
-//    }
-//    ss << "\n";
-//    for (auto b : *msg) {
-//        ss << std::bitset<8>(b) << " ";
-//    }
-    std::cout << ss.str();
+
+    auto sym = ctrl->converter.symbol((*msg)[1]);
+    std::cout << sym << "\n";
+
+    auto key = readKey();
+    std::cout << key2str(key) << "\n";
 }
 
 void 
 Controller::
-start()
+applyMap(double dt, std::vector<unsigned char> *msg, void *data)
 {
-    input->setCallback(&callback);
+}
+
+void 
+Controller::
+setup()
+{
+    input->setCallback(&setupMap, this);
+    //input->ignoreTypes(false, false, false);
+}
+
+void 
+Controller::
+convert()
+{
+    input->setCallback(&applyMap, this);
     //input->ignoreTypes(false, false, false);
 }
 

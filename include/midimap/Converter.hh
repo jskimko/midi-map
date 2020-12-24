@@ -1,27 +1,18 @@
 #ifndef MIDIMAP_CONVERTER_HH
 #define MIDIMAP_CONVERTER_HH
 
+#include "midimap/Key.hh"
+
 #include <string>
 #include <map>
 
 namespace midimap {
-
-enum class Key {
-    Tilde, One, Two, Three, Four, Five, Six, Seven, Eight, Nine, Zero, Dash, Equal, Backspace,
-    Q, W, E, R, T, Y, U, I, O, P, LeftBracket, RightBracket, Backslash,
-    A, S, D, F, G, H, J, K, L, SemiColon, SingleQuote, Enter,
-    Z, X, C, V, B, N, M, Comma, Period, Slash,
-    Shift, Control, Alt, Space, Up, Down, Left, Right,
-    None
-};
 
 class Converter {
 public:
     Converter();
 
     std::string symbol(unsigned char num) const;
-    Key readKey() const;
-
     void insert(std::string sym, Key key);
 
 private:
