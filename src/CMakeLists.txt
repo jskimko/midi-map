@@ -1,6 +1,7 @@
 add_library(midimap-lib
     midimap.cc
     Controller.cc
+    Layout.cc
     Converter.cc
     Key.cc
 )

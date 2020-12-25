@@ -2,22 +2,31 @@
 #define MIDIMAP_HH
 
 #include "midimap/Controller.hh"
-
-class Fl_Window;
+#include "midimap/Layout.hh"
 
 namespace midimap {
 
+class Attorney;
+class RegisterCallbacks;
+
 class MidiMap {
 public:
-    static constexpr char *TITLE = "MidiMap";
-    static constexpr int FONT_SIZE = 10;
-
     bool run();
 
 private:
-    void draw();
+    friend Attorney;
+    Layout& layout() { return layout_; }
 
-    Fl_Window *window;
+    void register_callbacks();
+
+    Controller controller;
+    Layout layout_;
+};
+
+class Attorney {
+private:
+    static Layout& layout(MidiMap &client) { return client.layout(); }
+    friend RegisterCallbacks;
 };
 
 } // namespace midimap
