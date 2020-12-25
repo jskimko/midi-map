@@ -1,4 +1,5 @@
 #include "midimap/midimap.hh"
+#include "midimap/SetupWindow.hh"
 
 #include "FL/Fl.H"
 #include "FL/Fl_Window.H"
@@ -58,7 +59,7 @@ struct RegisterCallbacks {
         auto &ctrl    = Attorney::controller(*midiMap);
 
         layout.setup->show();
-        ctrl.read(layout.button_play);
+        ctrl.read(layout.setup->button);
     }
 
     static void cb_start(Fl_Widget *w, void *data)
@@ -84,8 +85,7 @@ struct RegisterCallbacks {
         auto &ctrl    = Attorney::controller(*midiMap);
 
         layout.setup->hide();
-        layout.box_play->label(Layout::PLAY_TEXT);
-        layout.button_play->label(Layout::DASH_TEXT);
+        layout.setup->note();
         ctrl.stop();
     }
 
@@ -96,18 +96,14 @@ struct RegisterCallbacks {
         auto &layout  = Attorney::layout(*midiMap);
         auto &ctrl    = Attorney::controller(*midiMap);
 
-        if (layout.box_play->label() == Layout::PLAY_TEXT) {
-            if (layout.button_play->label() == Layout::DASH_TEXT) { return; }
-
-            layout.box_play->label(Layout::KEY_TEXT);
-            layout.button_play->label(Layout::EMPTY_TEXT);
+        if (layout.setup->isEmpty()) { 
+            return; 
+        } else if (layout.setup->isNote()) {
+            layout.setup->key();
             ctrl.stop();
-        } else if (layout.box_play->label() == Layout::KEY_TEXT) {
-            if (layout.button_play->label() == Layout::EMPTY_TEXT) { return; }
-
-            layout.box_play->label(Layout::PLAY_TEXT);
-            layout.button_play->copy_label(Layout::DASH_TEXT);
-            ctrl.read(layout.button_play);
+        } else if (layout.setup->isKey()) {
+            layout.setup->note();
+            ctrl.read(layout.setup->button);
         }
     }
 
@@ -124,7 +120,7 @@ register_callbacks()
     layout_.button_export->callback(&RegisterCallbacks::cb_export, this);
 
     layout_.setup->callback(&RegisterCallbacks::cb_setup_window, this);
-    layout_.button_play->callback(&RegisterCallbacks::cb_play, this);
+    layout_.setup->button->callback(&RegisterCallbacks::cb_play, this);
 }
 
 } // namespace midimap

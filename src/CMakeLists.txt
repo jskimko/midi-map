@@ -4,6 +4,7 @@ add_library(midimap-lib
     Layout.cc
     Converter.cc
     Key.cc
+    SetupWindow.cc
 )
 
 target_include_directories(midimap-lib

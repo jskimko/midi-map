@@ -1,4 +1,5 @@
 #include "midimap/Layout.hh"
+#include "midimap/SetupWindow.hh"
 
 #include "FL/Fl.H"
 #include "FL/Fl_Window.H"
@@ -21,10 +22,6 @@ draw()
     int pad8 = pad * 8;
     static constexpr int N_MAIN = 64;
     int remaining_pads = N_MAIN;
-
-    auto center_on = [](Fl_Widget *w, int x, int y) {
-        w->position(x - w->w() / 2, y - w->h() / 2);
-    };
 
     auto vert_split = [pad](Fl_Widget *w1, Fl_Widget *w2, double pct) {
         auto space = pad * (N_MAIN - 3);
@@ -84,18 +81,10 @@ draw()
 
     static constexpr int N_SETUP_X = 40;
     static constexpr int N_SETUP_Y = 20;
-    setup = new Fl_Window(pad * N_SETUP_X, pad * N_SETUP_Y);
-    auto width = setup->w();
-    auto height = setup->h();
-
-    box_play = new Fl_Box(0, height/10, width, FL_NORMAL_SIZE * 2, PLAY_TEXT);
-    box_play->color(FL_BACKGROUND_COLOR);
-    box_play->box(FL_FLAT_BOX);
-
-    button_play = new Fl_Button(0, 0, width / 3, height / 3, DASH_TEXT);
-    center_on(button_play, width / 2, 2 * height / 3);
-
+    setup = new SetupWindow(pad * N_SETUP_X, pad * N_SETUP_Y);
+    setup->note();
     setup->end();
+
 }
 
 void
