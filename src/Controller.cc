@@ -1,6 +1,9 @@
 #include "midimap/Controller.hh"
 
 #include "RtMidi.h"
+#include "FL/Fl.H"
+#include "FL/Fl_Button.H"
+
 #include <cstdio>
 
 namespace {
@@ -57,7 +60,14 @@ openPort(int port)
 
 void 
 Controller::
-setupMap(double dt, std::vector<unsigned char> *msg, void *data)
+closePort()
+{
+    input->closePort();
+}
+
+void 
+Controller::
+readCallback(double dt, std::vector<unsigned char> *msg, void *data)
 {
     if (msg->size() == 0) { return; }
     auto *ctrl = (Controller*) data;
@@ -68,38 +78,39 @@ setupMap(double dt, std::vector<unsigned char> *msg, void *data)
     }
 
     auto sym = ctrl->converter.symbol((*msg)[1]);
-    std::cout << sym << "\n";
-
-    auto key = readKey();
-    std::cout << key2str(key) << "\n";
+    ((Fl_Button*) ctrl->widget)->copy_label(sym.c_str());
+    ((Fl_Button*) ctrl->widget)->redraw();
+    Fl::flush();
 }
 
 void 
 Controller::
-applyMap(double dt, std::vector<unsigned char> *msg, void *data)
+convertCallback(double dt, std::vector<unsigned char> *msg, void *data)
 {
 }
 
 void 
 Controller::
-setup()
+read(Fl_Widget *w)
 {
-    input->setCallback(&setupMap, this);
-    //input->ignoreTypes(false, false, false);
+    printf("@@ read\n");
+    widget = w;
+    input->setCallback(&readCallback, this);
 }
 
 void 
 Controller::
-convert()
+convert(Fl_Widget *w)
 {
-    input->setCallback(&applyMap, this);
-    //input->ignoreTypes(false, false, false);
+    widget = w;
+    input->setCallback(&convertCallback, this);
 }
 
 void 
 Controller::
 stop()
 {
+    widget = nullptr;
     input->cancelCallback();
 }
 

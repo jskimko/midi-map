@@ -11,8 +11,12 @@ class Fl_Input;
 namespace midimap {
 
 struct Layout {
-    static constexpr char *TITLE = "MidiMap";
-    static constexpr int FONT_SIZE = 10;
+    static constexpr char *TITLE_TEXT = "MidiMap";
+    static constexpr char *PLAY_TEXT  = "Play a note:";
+    static constexpr char *KEY_TEXT   = "Press a key:";
+    static constexpr char *DASH_TEXT  = "-";
+    static constexpr char *EMPTY_TEXT = "";
+    static constexpr int FONT_SIZE    = 10;
 
     void draw();
     void show();

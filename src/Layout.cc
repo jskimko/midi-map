@@ -32,7 +32,7 @@ draw()
         w2->resize(w1->x() + w1->w() + pad, w2->y(), space * (1 - pct), w2->h());
     };
 
-    window = new Fl_Window(pad * N_MAIN, pad * N_MAIN, TITLE);
+    window = new Fl_Window(pad * N_MAIN, pad * N_MAIN, TITLE_TEXT);
 
     int y = pad;
     remaining_pads -= 2; // top and bottom pads.
@@ -88,11 +88,11 @@ draw()
     auto width = setup->w();
     auto height = setup->h();
 
-    box_play = new Fl_Box(0, height/10, width, FL_NORMAL_SIZE * 2, "Play a note:");
+    box_play = new Fl_Box(0, height/10, width, FL_NORMAL_SIZE * 2, PLAY_TEXT);
     box_play->color(FL_BACKGROUND_COLOR);
     box_play->box(FL_FLAT_BOX);
 
-    button_play = new Fl_Button(0, 0, width / 3, height / 3, "-");
+    button_play = new Fl_Button(0, 0, width / 3, height / 3, DASH_TEXT);
     center_on(button_play, width / 2, 2 * height / 3);
 
     setup->end();

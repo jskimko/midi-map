@@ -7,7 +7,7 @@
 namespace midimap {
 
 class Attorney;
-class RegisterCallbacks;
+struct RegisterCallbacks;
 
 class MidiMap {
 public:
@@ -16,16 +16,18 @@ public:
 private:
     friend Attorney;
     Layout& layout() { return layout_; }
+    Controller& controller() { return controller_; }
 
     void register_callbacks();
 
-    Controller controller;
+    Controller controller_;
     Layout layout_;
 };
 
 class Attorney {
 private:
     static Layout& layout(MidiMap &client) { return client.layout(); }
+    static Controller& controller(MidiMap &client) { return client.controller(); }
     friend RegisterCallbacks;
 };
 

@@ -8,6 +8,7 @@
 #include <string>
 
 class RtMidiIn;
+class Fl_Widget;
 
 namespace midimap {
 
@@ -18,17 +19,20 @@ public:
 
     std::vector<std::string> getPortNames() const;
     bool openPort(int port);
+    void closePort();
 
-    void setup();
-    void convert();
+    void read(Fl_Widget *w);
+    void convert(Fl_Widget *w);
     void stop();
 
 private:
-    static void applyMap(double dt, std::vector<unsigned char> *msg, void *data);
-    static void setupMap(double dt, std::vector<unsigned char> *msg, void *data);
+    static void convertCallback(double dt, std::vector<unsigned char> *msg, void *data);
+    static void readCallback(double dt, std::vector<unsigned char> *msg, void *data);
 
     RtMidiIn *input;
     Converter converter;
+
+    Fl_Widget *widget;
 };
 
 } // namespace midimap
