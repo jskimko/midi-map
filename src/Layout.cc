@@ -65,6 +65,7 @@ draw()
     output->value("1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n");
     output->cursor_color(FL_BACKGROUND_COLOR);
     output->color(FL_BACKGROUND_COLOR);
+    output->textfont(FL_COURIER);
 
     // insert output between choice and setup.
     // position(int, int) is not working.

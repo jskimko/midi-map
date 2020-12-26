@@ -10,6 +10,7 @@ namespace midimap {
 
 class Converter {
 public:
+    static unsigned char octave(unsigned char num);
     static std::string symbol(unsigned char num);
 
     Converter();

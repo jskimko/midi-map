@@ -78,10 +78,9 @@ readCallback(double dt, std::vector<unsigned char> *msg, void *data)
         return;
     }
 
-    auto note = (*msg)[1];
-    bundle->note2key[note] = Key::NONE;
+    bundle->note = (*msg)[1];
 
-    auto sym = Converter::symbol(note);
+    auto sym = Converter::symbol(bundle->note);
     bundle->widget->copy_label(sym.c_str());
     bundle->widget->redraw();
     Fl::flush();
