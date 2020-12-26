@@ -3,6 +3,7 @@
 
 #include "midimap/Controller.hh"
 #include "midimap/Layout.hh"
+#include "midimap/Bundle.hh"
 
 namespace midimap {
 
@@ -14,20 +15,23 @@ public:
     bool run();
 
 private:
-    friend Attorney;
-    Layout& layout() { return layout_; }
-    Controller& controller() { return controller_; }
-
     void register_callbacks();
+
+    friend Attorney;
+    Controller& controller() { return controller_; }
+    Layout& layout() { return layout_; }
+    Bundle& bundle() { return bundle_; }
 
     Controller controller_;
     Layout layout_;
+    Bundle bundle_;
 };
 
 class Attorney {
 private:
     static Layout& layout(MidiMap &client) { return client.layout(); }
     static Controller& controller(MidiMap &client) { return client.controller(); }
+    static Bundle& bundle(MidiMap &client) { return client.bundle(); }
     friend RegisterCallbacks;
 };
 

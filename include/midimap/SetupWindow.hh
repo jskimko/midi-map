@@ -9,6 +9,8 @@ class Fl_Button;
 
 namespace midimap {
 
+struct Bundle;
+
 struct SetupWindow : public Fl_Window {
 public:
     static constexpr char *NOTE_TEXT  = "Play a note:";
@@ -27,6 +29,8 @@ public:
 
     Fl_Box    *box;
     Fl_Button *button;
+
+    Bundle *bundle;
 };
 
 } // namespace midimap

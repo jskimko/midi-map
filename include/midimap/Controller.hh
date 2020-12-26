@@ -12,6 +12,8 @@ class Fl_Widget;
 
 namespace midimap {
 
+struct Bundle;
+
 class Controller {
 public:
     Controller();
@@ -21,8 +23,8 @@ public:
     bool openPort(int port);
     void closePort();
 
-    void read(Fl_Widget *w);
-    void convert(Fl_Widget *w);
+    void read(Bundle &bundle);
+    void convert(Bundle &bundle);
     void stop();
 
 private:
@@ -31,8 +33,6 @@ private:
 
     RtMidiIn *input;
     Converter converter;
-
-    Fl_Widget *widget;
 };
 
 } // namespace midimap

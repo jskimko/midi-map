@@ -4,21 +4,21 @@
 #include "midimap/Key.hh"
 
 #include <string>
-#include <map>
+#include <unordered_map>
 
 namespace midimap {
 
 class Converter {
 public:
-    Converter();
+    static std::string symbol(unsigned char num);
 
-    std::string symbol(unsigned char num) const;
+    Converter();
     void insert(std::string sym, Key key);
 
 private:
-    static std::map<unsigned char, std::string> num2sym;
+    static std::unordered_map<unsigned char, std::string> num2sym;
 
-    std::map<std::string, Key> sym2key;
+    std::unordered_map<std::string, Key> sym2key;
     Key octaveUp;
     Key octaveDown;
 };

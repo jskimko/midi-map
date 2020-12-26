@@ -1,4 +1,6 @@
 #include "midimap/SetupWindow.hh"
+#include "midimap/Bundle.hh"
+#include "midimap/Key.hh"
 
 #include "FL/Fl_Box.H"
 #include "FL/Fl_Button.H"
@@ -64,14 +66,12 @@ int
 SetupWindow::
 handle(int e)
 {
-    switch (e) {
-        case FL_KEYUP:
-            printf("@@ KEYUP %s %d\n", Fl::event_text(), Fl::event_key());
-            button->copy_label(Fl::event_text());
-            return 1;
-        default:
-            return Fl_Window::handle(e);
+    if (isKey() && e == FL_KEYUP) {
+        bundle->key = fltk2key(Fl::event_key());
+        button->copy_label(key2str(bundle->key).c_str());
+        return 1;
     }
+    return Fl_Window::handle(e);
 }
 
 } // namespace midimap

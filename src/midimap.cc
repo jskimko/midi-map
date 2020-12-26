@@ -38,6 +38,9 @@ run()
     }
     layout_.choice->value(0);
 
+    layout_.setup->bundle = &bundle_;
+    bundle_.controller = &controller_;
+    bundle_.widget = layout_.setup->button;
     register_callbacks();
 
     layout_.show();
@@ -76,9 +79,10 @@ struct RegisterCallbacks {
         auto *midiMap = (MidiMap*) data;
         auto &layout  = Attorney::layout(*midiMap);
         auto &ctrl    = Attorney::controller(*midiMap);
+        auto &bundle  = Attorney::bundle(*midiMap);
 
         layout.setup->show();
-        ctrl.read(layout.setup->button);
+        ctrl.read(bundle);
     }
 
     static void cb_start(Fl_Widget *w, void *data)
@@ -108,9 +112,9 @@ struct RegisterCallbacks {
         ctrl.stop();
     }
 
-    static void cb_play(Fl_Widget *w, void *data)
+    static void cb_note(Fl_Widget *w, void *data)
     {
-        printf("@@ play\n");
+        printf("@@ note\n");
         auto *midiMap = (MidiMap*) data;
         auto &layout  = Attorney::layout(*midiMap);
         auto &ctrl    = Attorney::controller(*midiMap);
@@ -118,11 +122,22 @@ struct RegisterCallbacks {
         if (layout.setup->isEmpty()) { 
             return; 
         } else if (layout.setup->isNote()) {
-            layout.setup->key();
             ctrl.stop();
+            layout.setup->key();
         } else if (layout.setup->isKey()) {
+            auto &bundle = Attorney::bundle(*midiMap);
+
+            auto it = std::find_if(
+                bundle.note2key.begin(), bundle.note2key.end(),
+                [](const auto &kv) { return kv.second == Key::NONE; }
+            );
+
+            if (it != bundle.note2key.end()) {
+                it->second = bundle.key;
+            }
+
             layout.setup->note();
-            ctrl.read(layout.setup->button);
+            ctrl.read(bundle);
         }
     }
 
@@ -140,7 +155,7 @@ register_callbacks()
     layout_.button_export->callback(&RegisterCallbacks::cb_export, this);
 
     layout_.setup->callback(&RegisterCallbacks::cb_setup_window, this);
-    layout_.setup->button->callback(&RegisterCallbacks::cb_play, this);
+    layout_.setup->button->callback(&RegisterCallbacks::cb_note, this);
 }
 
 } // namespace midimap

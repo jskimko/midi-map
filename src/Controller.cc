@@ -1,4 +1,5 @@
 #include "midimap/Controller.hh"
+#include "midimap/Bundle.hh"
 
 #include "RtMidi.h"
 #include "FL/Fl.H"
@@ -70,16 +71,19 @@ Controller::
 readCallback(double dt, std::vector<unsigned char> *msg, void *data)
 {
     if (msg->size() == 0) { return; }
-    auto *ctrl = (Controller*) data;
+    auto *bundle = (Bundle*) data;
 
     unsigned char status = (*msg)[0];
     if ((status & 0xF0) != NOTE_ON) {
         return;
     }
 
-    auto sym = ctrl->converter.symbol((*msg)[1]);
-    ((Fl_Button*) ctrl->widget)->copy_label(sym.c_str());
-    ((Fl_Button*) ctrl->widget)->redraw();
+    auto note = (*msg)[1];
+    bundle->note2key[note] = Key::NONE;
+
+    auto sym = Converter::symbol(note);
+    bundle->widget->copy_label(sym.c_str());
+    bundle->widget->redraw();
     Fl::flush();
 }
 
@@ -91,26 +95,22 @@ convertCallback(double dt, std::vector<unsigned char> *msg, void *data)
 
 void 
 Controller::
-read(Fl_Widget *w)
+read(Bundle &bundle)
 {
-    printf("@@ read\n");
-    widget = w;
-    input->setCallback(&readCallback, this);
+    input->setCallback(&readCallback, &bundle);
 }
 
 void 
 Controller::
-convert(Fl_Widget *w)
+convert(Bundle &bundle)
 {
-    widget = w;
-    input->setCallback(&convertCallback, this);
+    input->setCallback(&convertCallback, &bundle);
 }
 
 void 
 Controller::
 stop()
 {
-    widget = nullptr;
     input->cancelCallback();
 }
 
