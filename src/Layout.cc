@@ -12,6 +12,20 @@
 
 namespace midimap {
 
+static constexpr char *WELCOME_TEXT = R"(
+Welcome to MidiMap!
+
+Click Setup to start registering notes to 
+key presses, or enter a file path to 
+import an existing map.
+
+Click Start to begin converting notes 
+using the generated map.
+
+Click Export to save your current map to
+the provided path.
+)";
+
 void
 Layout::
 draw()
@@ -62,7 +76,7 @@ draw()
 
     // output fills to the end.
     output = new Fl_Multiline_Output(pad, y, pad * (N_MAIN - 2), pad * remaining_pads);
-    output->value("1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n");
+    output->value(WELCOME_TEXT);
     output->cursor_color(FL_BACKGROUND_COLOR);
     output->color(FL_BACKGROUND_COLOR);
     output->textfont(FL_COURIER);
