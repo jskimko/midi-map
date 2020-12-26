@@ -14,6 +14,12 @@
 
 namespace midimap {
 
+namespace {
+    static int disable_shortcuts(int e) {
+        return e == FL_SHORTCUT;
+    }
+}
+
 bool 
 MidiMap::
 run()
@@ -23,7 +29,7 @@ run()
     auto const &names = controller_.getPortNames();
     if (names.size() == 0) {
         layout_.choice->add("could not detect a MIDI input device");
-        layout_.deactivate();
+        //layout_.deactivate();
     } else {
         for (auto const &name : controller_.getPortNames()) {
             layout_.choice->add(name.c_str());
@@ -35,10 +41,23 @@ run()
     register_callbacks();
 
     layout_.show();
+
+    Fl::add_handler(&disable_shortcuts);
     return Fl::run();
 }
 
 struct RegisterCallbacks {
+
+    static void cb_window(Fl_Widget *w, void *data)
+    {
+        printf("@@ window\n");
+        auto *midiMap = (MidiMap*) data;
+        auto &layout  = Attorney::layout(*midiMap);
+        auto &ctrl    = Attorney::controller(*midiMap);
+
+        layout.setup->hide();
+        layout.window->hide();
+    }
 
     static void cb_choice(Fl_Widget *w, void *data)
     {
@@ -113,6 +132,7 @@ void
 MidiMap::
 register_callbacks()
 {
+    layout_.window->callback(&RegisterCallbacks::cb_window, this);
     layout_.choice->callback(&RegisterCallbacks::cb_choice, this);
     layout_.button_setup->callback(&RegisterCallbacks::cb_setup, this);
     layout_.button_start->callback(&RegisterCallbacks::cb_start, this);
