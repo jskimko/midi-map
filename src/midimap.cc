@@ -193,6 +193,12 @@ struct RegisterCallbacks {
             );
 
             if (it != noteKeyMap.end()) {
+                auto exists = std::find_if(
+                    noteKeyMap.begin(), noteKeyMap.end(),
+                    [&bundle](const auto &kv) { return kv.second == bundle.key; }
+                );
+                if (exists != noteKeyMap.end()) { return; }
+
                 it->second = bundle.key;
             }
 
