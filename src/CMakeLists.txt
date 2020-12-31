@@ -5,6 +5,7 @@ add_library(midimap-lib
     Converter.cc
     Key.cc
     SetupWindow.cc
+    Keyboard.cc
 )
 
 target_include_directories(midimap-lib
@@ -12,7 +13,7 @@ target_include_directories(midimap-lib
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
         $<INSTALL_INTERFACE:include>
     PRIVATE
-        "${RtMidi_INCLUDE_DIRECTORIES}"
+        "${RtMidi_INCLUDE_DIRS}"
         "${FLTK_INCLUDE_DIRS}"
 )
 
@@ -27,3 +28,21 @@ target_link_directories(midimap-lib
         "${FLTK_LIBRARY_DIRS}"
 )
 
+if(NOT WIN32)
+	target_compile_definitions(midimap-lib PUBLIC XLIB)
+    if(X11_XTest_FOUND)
+        target_compile_definitions(midimap-lib PUBLIC XTEST)
+	endif()
+
+    target_include_directories(midimap-lib
+        PUBLIC
+            "${X11_INCLUDE_DIR}"
+            "${X11_XTest_INCLUDE_PATH}"
+    )
+
+    target_link_libraries(midimap-lib
+        PRIVATE
+            "${X11_LIBRARIES}"
+            "${X11_XTest_LIB}"
+    )
+endif()

@@ -1,6 +1,17 @@
 #ifndef MIDIMAP_KEY_HH
 #define MIDIMAP_KEY_HH
 
+#if defined _WIN32
+#include <windows.h>
+#include <winuser.h>
+#elif defined XLIB
+#include <X11/Xlib.h>
+#include <X11/keysym.h>
+#if defined XTEST
+#include <X11/extensions/XTest.h>
+#endif
+#endif
+
 #include <string>
 
 namespace midimap {
@@ -18,6 +29,12 @@ enum class Key {
 
 std::string key2str(Key key);
 Key fltk2key(int k);
+
+#if defined _WIN32
+WORD key2win(Key key);
+#elif defined XLIB
+int key2x11(Key key);
+#endif
 
 } // namespace midimap
 

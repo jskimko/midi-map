@@ -2,7 +2,7 @@
 #define MIDIMAP_CONTROLLER_HH
 
 #include "midimap/Converter.hh"
-#include "midimap/Key.hh"
+#include "midimap/Keyboard.hh"
 
 #include <vector>
 #include <string>
@@ -33,6 +33,7 @@ private:
 
     RtMidiIn *input;
     Converter converter;
+    Keyboard keyboard;
 };
 
 } // namespace midimap
