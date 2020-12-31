@@ -10,6 +10,8 @@
 #include <FL/Fl_Input.H>
 #include <FL/Fl_Multiline_Output.H>
 
+#include <vector>
+
 namespace midimap {
 
 static constexpr char *WELCOME_TEXT = R"(
@@ -24,6 +26,8 @@ using the generated map.
 
 Click Export to save your current map to
 the provided path.
+
+If no device is detected, reload the program.
 )";
 
 void
@@ -37,10 +41,13 @@ draw()
     static constexpr int N_MAIN = 64;
     int remaining_pads = N_MAIN;
 
-    auto vert_split = [pad](Fl_Widget *w1, Fl_Widget *w2, double pct) {
-        auto space = pad * (N_MAIN - 3);
-        w1->resize(pad, w1->y(), space * pct, w1->h());
-        w2->resize(w1->x() + w1->w() + pad, w2->y(), space * (1 - pct), w2->h());
+    auto vert_split = [pad](std::vector<Fl_Widget*> ws, std::vector<double> ps) {
+        // pads = left + right + (n_widgets - 1)
+        auto space = pad * (N_MAIN - ws.size() - 1);
+        ws[0]->resize(pad, ws[0]->y(), space * ps[0], ws[0]->h());
+        for (decltype(ws.size()) i=1; i<ws.size(); i++) {
+            ws[i]->resize(ws[i-1]->x() + ws[i-1]->w() + pad, ws[i]->y(), space * ps[i], ws[i]->h());
+        }
     };
 
     window = new Fl_Window(pad * N_MAIN, pad * N_MAIN, TITLE_TEXT);
@@ -50,27 +57,27 @@ draw()
 
     box_choice = new Fl_Box(0, y, 0, pad4, "Controller");
     choice = new Fl_Choice(0, y, 0, pad4);
-    vert_split(box_choice, choice, 0.3);
+    vert_split({box_choice, choice}, {0.3, 0.7});
     box_choice->align(FL_ALIGN_CENTER);
     y += box_choice->h() + pad;
     remaining_pads -= 5;
 
     button_setup = new Fl_Button(0, y, 0, pad8, "Setup");
     button_start = new Fl_Light_Button(0, y, 0, pad8, "Start");
-    vert_split(button_setup, button_start, 0.5);
+    vert_split({button_setup, button_start}, {0.5, 0.5});
     button_start->align(FL_ALIGN_CENTER);
     y += button_setup->h() + pad;
     remaining_pads -= 9;
 
     button_import = new Fl_Button(0, y, 0, pad4, "Import");
     input_import = new Fl_Input(0, y, 0, pad4);
-    vert_split(button_import, input_import, 0.2);
+    vert_split({button_import, input_import}, {0.2, 0.8});
     y += button_import->h() + pad;
     remaining_pads -= 5;
 
     button_export = new Fl_Button(0, y, 0, pad4, "Export");
     input_export = new Fl_Input(0, y, 0, pad4);
-    vert_split(button_export, input_export, 0.2);
+    vert_split({button_export, input_export}, {0.2, 0.8});
     y += button_export->h() + pad;
     remaining_pads -= 5;
 
