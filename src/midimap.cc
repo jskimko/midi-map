@@ -22,7 +22,7 @@ namespace {
     noteKeyMap2str(MidiMap::NoteKeyMap const &map) {
         if (map.size() == 0) { return {}; }
 
-        auto minOctave = map.begin()->first;
+        auto minOctave = Converter::octave(map.begin()->first);
         auto maxOctave = minOctave;
 
         for (auto it=map.begin(); it != map.end(); it++) {
@@ -33,25 +33,42 @@ namespace {
 
         std::vector<std::vector<std::pair<unsigned char, Key>>> octaves(maxOctave - minOctave + 1);
         for (auto it=map.begin(); it != map.end(); it++) {
-            auto o = Converter::octave(it->first);
+            auto o = Converter::octave(it->first) - minOctave;
             octaves[o].push_back(*it);
         }
 
-        for (auto &octave : octaves) {
-            std::sort(octave.begin(), octave.end()); 
+        std::vector<std::string::size_type> maxSymLens(octaves.size());
+        std::vector<std::string::size_type> maxKeyLens(octaves.size());
+        for (decltype(octaves.size()) i=0; i<octaves.size(); i++) {
+            std::sort(octaves[i].begin(), octaves[i].end()); 
+
+            for (auto const &p : octaves[i]) {
+                auto len = Converter::symbol(p.first).size();
+                if (len > maxSymLens[i]) { maxSymLens[i] = len; }
+                len = key2str(p.second).size();
+                if (len > maxKeyLens[i]) { maxKeyLens[i] = len; }
+            }
         }
 
-        auto format_entry = [](std::stringstream &ss, std::pair<unsigned char, Key> const &p) {
-            ss << std::left << std::setfill(' ') << std::setw(3) 
-               << Converter::symbol(p.first) << " -> " << key2str(p.second);
+        auto format_entry = [&maxSymLens, &maxKeyLens](std::stringstream &ss, 
+                                                       std::pair<unsigned char, Key> const &p,
+                                                       int col) {
+            ss << std::left << std::setfill(' ') << std::setw(maxSymLens[col])
+               << Converter::symbol(p.first) << " -> " 
+               << std::setw(maxKeyLens[col]) << key2str(p.second);
         };
 
-        auto format_row = [](std::stringstream &ss, std::string const &s) {
-            ss << s << " ";
+        auto format_row = [](std::stringstream &ss, 
+                             std::string const &s, 
+                             std::string::size_type w, 
+                             bool last) {
+            ss << std::setw(w) << s;
+            if (!last) { ss << " | "; }
         };
 
         std::stringstream ss;
         decltype(octaves[0].size()) r=0;
+        std::vector<std::string::size_type> maxEntryLens(octaves.size());
         while (1) {
             bool any = false;
             for (decltype(octaves.size()) c=0; c<octaves.size(); c++) {
@@ -65,9 +82,12 @@ namespace {
             for (decltype(octaves.size()) c=0; c<octaves.size(); c++) {
                 std::stringstream entry;
                 if (r < octaves[c].size()) {
-                    format_entry(entry, octaves[c][r]);
+                    format_entry(entry, octaves[c][r], c);
                 }
-                format_row(ss, entry.str());
+                if (entry.str().size() > maxEntryLens[c]) { 
+                    maxEntryLens[c] = entry.str().size(); 
+                }
+                format_row(ss, entry.str(), maxEntryLens[c], c == octaves.size() - 1);
             }
             ss << "\n";
 
