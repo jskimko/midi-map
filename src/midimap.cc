@@ -5,11 +5,15 @@
 #include <FL/Fl_Choice.H>
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Output.H>
+#include "FL/fl_ask.H"
 
-#include <cstdio>
+#include <fstream>
+#include <type_traits>
 #include <sstream>
 #include <iomanip>
 #include <algorithm>
+
+#include <cstdio>
 
 namespace midimap {
 
@@ -182,11 +186,19 @@ struct RegisterCallbacks {
     static void cb_import(Fl_Widget *w, void *data)
     {
         printf("@@ import\n");
+        auto *midiMap = (MidiMap*) data;
+        auto &layout  = Attorney::layout(*midiMap);
+
+        Attorney::importMap(*midiMap, layout.input_import->value());
     }
 
     static void cb_export(Fl_Widget *w, void *data)
     {
         printf("@@ export\n");
+        auto *midiMap = (MidiMap*) data;
+        auto &layout  = Attorney::layout(*midiMap);
+
+        Attorney::exportMap(*midiMap, layout.input_export->value());
     }
 
     static void cb_setup_window(Fl_Widget *w, void *data)
@@ -255,6 +267,45 @@ register_callbacks()
 
     layout_.setup->callback(&RegisterCallbacks::cb_setup_window, this);
     layout_.setup->button->callback(&RegisterCallbacks::cb_note, this);
+}
+
+void
+MidiMap::
+importMap(std::string const &fname)
+{
+    std::ifstream ifs(fname);
+    if (ifs.is_open()) {
+        noteKeyMap_.clear();
+        NoteKeyMap::key_type key;
+        std::underlying_type<NoteKeyMap::mapped_type>::type val;
+        while (ifs >> key >> val) {
+            noteKeyMap_.insert({key, Key(val)});
+        }
+
+        layout_.output->value(noteKeyMap2str(noteKeyMap_).c_str());
+        Fl::flush();
+
+        fl_alert("Imported from file '%s'", fname.c_str());
+    } else {
+        fl_alert("Could not import from file '%s'", fname.c_str());
+    }
+}
+
+void
+MidiMap::
+exportMap(std::string const &fname) const
+{
+    std::ofstream ofs(fname);
+    if (ofs.is_open()) {
+        for (auto const &kv : noteKeyMap_) {
+            ofs << kv.first << " " 
+                << static_cast<std::underlying_type<NoteKeyMap::mapped_type>::type>(kv.second)
+                << "\n";
+        }
+        fl_alert("Exported to file '%s'", fname.c_str());
+    } else {
+        fl_alert("Could not export to file '%s'", fname.c_str());
+    }
 }
 
 } // namespace midimap

@@ -19,6 +19,9 @@ public:
 private:
     void register_callbacks();
 
+    void importMap(std::string const &fname);
+    void exportMap(std::string const &fname) const;
+
     friend Attorney;
     Controller& controller() { return controller_; }
     Layout& layout() { return layout_; }
@@ -38,6 +41,8 @@ private:
     static Controller& controller(MidiMap &client) { return client.controller(); }
     static Bundle& bundle(MidiMap &client) { return client.bundle(); }
     static NoteKeyMap& noteKeyMap(MidiMap &client) { return client.noteKeyMap(); }
+    static void importMap(MidiMap &client, std::string const &fname) { return client.importMap(fname); }
+    static void exportMap(MidiMap &client, std::string const &fname) { return client.exportMap(fname); }
     friend RegisterCallbacks;
 };
 
