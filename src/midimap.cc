@@ -7,6 +7,7 @@
 #include <FL/Fl_Output.H>
 #include "FL/fl_ask.H"
 
+#include <sstream>
 #include <fstream>
 #include <type_traits>
 
@@ -158,12 +159,35 @@ struct RegisterCallbacks {
         Attorney::exportMap(*midiMap, layout.input_export->value());
     }
 
+    static std::string output(MidiMap *midiMap) 
+    {
+        auto &layout     = Attorney::layout(*midiMap);
+        auto &noteKeyMap = Attorney::noteKeyMap(*midiMap);
+        std::stringstream ss;
+        ss << "Octave Down: " << key2str(layout.setup->octaveDown) << "\t"
+           << "Octave Up: " << key2str(layout.setup->octaveUp) << "\n\n"
+           << noteKeyMap2str(noteKeyMap);
+        return ss.str();
+    }
+
     static void cb_setup_window(Fl_Widget *w, void *data)
     {
         printf("@@ setup_window\n");
-        auto *midiMap = (MidiMap*) data;
-        auto &layout  = Attorney::layout(*midiMap);
-        auto &ctrl    = Attorney::controller(*midiMap);
+        auto *midiMap    = (MidiMap*) data;
+        auto &layout     = Attorney::layout(*midiMap);
+        auto &ctrl       = Attorney::controller(*midiMap);
+        auto &noteKeyMap = Attorney::noteKeyMap(*midiMap);
+
+        auto it = noteKeyMap.begin();
+        while (it != noteKeyMap.end()) {
+            if (it->second == Key::NONE) {
+                it = noteKeyMap.erase(it);
+            } else {
+                it++;
+            }
+        }
+
+        layout.output->value(output(midiMap).c_str());
 
         layout.setup->hide();
         layout.setup->note();
@@ -176,10 +200,10 @@ struct RegisterCallbacks {
         auto *midiMap    = (MidiMap*) data;
         auto &layout     = Attorney::layout(*midiMap);
         auto &ctrl       = Attorney::controller(*midiMap);
-        auto &bundle = Attorney::bundle(*midiMap);
+        auto &bundle     = Attorney::bundle(*midiMap);
         auto &noteKeyMap = Attorney::noteKeyMap(*midiMap);
 
-        if (layout.setup->isEmpty()) { 
+        if (layout.setup->isEmpty()) {
             return; 
         } else if (layout.setup->isNote()) {
             ctrl.stop();
@@ -202,11 +226,29 @@ struct RegisterCallbacks {
                 it->second = bundle.key;
             }
 
-            layout.output->value(noteKeyMap2str(noteKeyMap).c_str());
+            layout.output->value(output(midiMap).c_str());
 
             layout.setup->note();
             ctrl.read(bundle);
         }
+    }
+
+    static void cb_down(Fl_Widget *w, void *data)
+    {
+        printf("@@ down\n");
+        auto *midiMap    = (MidiMap*) data;
+        auto &layout     = Attorney::layout(*midiMap);
+
+        layout.setup->down();
+    }
+
+    static void cb_up(Fl_Widget *w, void *data)
+    {
+        printf("@@ up\n");
+        auto *midiMap    = (MidiMap*) data;
+        auto &layout     = Attorney::layout(*midiMap);
+
+        layout.setup->up();
     }
 
 };
@@ -224,6 +266,8 @@ register_callbacks()
 
     layout_.setup->callback(&RegisterCallbacks::cb_setup_window, this);
     layout_.setup->button_note->callback(&RegisterCallbacks::cb_note, this);
+    layout_.setup->button_down->callback(&RegisterCallbacks::cb_down, this);
+    layout_.setup->button_up->callback(&RegisterCallbacks::cb_up, this);
 }
 
 } // namespace midimap
