@@ -12,6 +12,7 @@
 #include <sstream>
 #include <iomanip>
 #include <algorithm>
+#include <functional>
 
 #include <cstdio>
 
@@ -44,7 +45,7 @@ namespace {
         std::vector<std::string::size_type> maxSymLens(octaves.size());
         std::vector<std::string::size_type> maxKeyLens(octaves.size());
         for (decltype(octaves.size()) i=0; i<octaves.size(); i++) {
-            std::sort(octaves[i].begin(), octaves[i].end()); 
+            std::sort(octaves[i].begin(), octaves[i].end(), std::greater<>()); 
 
             for (auto const &p : octaves[i]) {
                 auto len = Converter::symbol(p.first).size();
