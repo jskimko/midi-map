@@ -6,6 +6,7 @@ add_library(midimap-lib
     Key.cc
     SetupWindow.cc
     Keyboard.cc
+    NoteKeyMap.cc
 )
 
 target_include_directories(midimap-lib

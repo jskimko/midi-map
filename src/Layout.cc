@@ -102,7 +102,7 @@ draw()
     window->end();
 
     static constexpr int N_SETUP_X = 40;
-    static constexpr int N_SETUP_Y = 20;
+    static constexpr int N_SETUP_Y = 40;
     setup = new SetupWindow(pad * N_SETUP_X, pad * N_SETUP_Y);
     setup->note();
     setup->end();
