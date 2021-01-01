@@ -43,9 +43,6 @@ public:
     Fl_Button *button_up;
 
     Bundle *bundle;
-
-    Key octaveDown;
-    Key octaveUp;
 };
 
 } // namespace midimap

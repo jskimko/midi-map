@@ -30,7 +30,7 @@ run()
     auto const &names = controller_.getPortNames();
     if (names.size() == 0) {
         layout_.choice->add("could not detect a MIDI input device");
-        //layout_.deactivate();
+        layout_.deactivate();
     } else {
         for (auto const &name : controller_.getPortNames()) {
             layout_.choice->add(name.c_str());
@@ -39,10 +39,16 @@ run()
     }
     layout_.choice->value(0);
 
-    layout_.setup->bundle = &bundle_;
     bundle_.controller = &controller_;
     bundle_.widget = layout_.setup->button_note;
     bundle_.noteKeyMap = &noteKeyMap_;
+    bundle_.octaveDown = Key::NONE;
+    bundle_.octaveUp = Key::NONE;
+
+    layout_.setup->bundle = &bundle_;
+    layout_.setup->button_down->copy_label(key2str(bundle_.octaveDown).c_str());
+    layout_.setup->button_up->copy_label(key2str(bundle_.octaveUp).c_str());
+
     register_callbacks();
 
     layout_.show();
@@ -161,11 +167,11 @@ struct RegisterCallbacks {
 
     static std::string output(MidiMap *midiMap) 
     {
-        auto &layout     = Attorney::layout(*midiMap);
+        auto &bundle     = Attorney::bundle(*midiMap);
         auto &noteKeyMap = Attorney::noteKeyMap(*midiMap);
         std::stringstream ss;
-        ss << "Octave Down: " << key2str(layout.setup->octaveDown) << "\t"
-           << "Octave Up: " << key2str(layout.setup->octaveUp) << "\n\n"
+        ss << "Octave Down: " << key2str(bundle.octaveDown) << "\t"
+           << "Octave Up: " << key2str(bundle.octaveUp) << "\n\n"
            << noteKeyMap2str(noteKeyMap);
         return ss.str();
     }
@@ -224,8 +230,19 @@ struct RegisterCallbacks {
                 if (exists != noteKeyMap.end()) { return; }
 
                 it->second = bundle.key;
-            }
 
+                auto octave = Converter::octave(it->first);
+                if (noteKeyMap.size() == 1) {
+                    bundle.minOctave = octave;
+                    bundle.maxOctave = octave;
+                } else {
+                    if (bundle.minOctave > octave) { 
+                        bundle.minOctave = octave;
+                    } else if (bundle.maxOctave < octave) { 
+                        bundle.maxOctave = octave;
+                    }
+                }
+            }
             layout.output->value(output(midiMap).c_str());
 
             layout.setup->note();

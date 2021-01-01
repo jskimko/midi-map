@@ -13,9 +13,7 @@ namespace midimap {
 SetupWindow::
 SetupWindow(int w, int h)
     : Fl_Window(w, h),
-      bundle(nullptr),
-      octaveDown(Key::DOWN),
-      octaveUp(Key::UP)
+      bundle(nullptr)
 {
     auto w_half = w / 2;
     auto h_half = h / 2;
@@ -38,12 +36,10 @@ SetupWindow(int w, int h)
 
     button_down = new Fl_Button(0, 0, w / 3, h_half / 3);
     button_down->clear_visible_focus();
-    button_down->copy_label(key2str(octaveDown).c_str());
     center_on(button_down, w * 0.25 , h_half + 2 * h_half / 3);
 
     button_up = new Fl_Button(0, 0, w / 3, h_half / 3);
     button_up->clear_visible_focus();
-    button_up->copy_label(key2str(octaveUp).c_str());
     center_on(button_up, w * 0.75 , h_half + 2 * h_half / 3);
 
     this->end();
@@ -53,8 +49,8 @@ void
 SetupWindow::
 note()
 {
-    if (isUp()) { button_up->copy_label(key2str(octaveUp).c_str()); }
-    else if (isDown()) { button_down->copy_label(key2str(octaveDown).c_str()); }
+    if (isUp()) { button_up->copy_label(key2str(bundle->octaveUp).c_str()); }
+    else if (isDown()) { button_down->copy_label(key2str(bundle->octaveDown).c_str()); }
     box_note->label(NOTE_TEXT);
     button_note->label(EMPTY_TEXT);
 }
@@ -63,8 +59,8 @@ void
 SetupWindow::
 key()
 {
-    if (isUp()) { button_up->copy_label(key2str(octaveUp).c_str()); }
-    else if (isDown()) { button_down->copy_label(key2str(octaveDown).c_str()); }
+    if (isUp()) { button_up->copy_label(key2str(bundle->octaveUp).c_str()); }
+    else if (isDown()) { button_down->copy_label(key2str(bundle->octaveDown).c_str()); }
     box_note->label(KEY_TEXT);
     button_note->label(EMPTY_TEXT);
 }
@@ -73,7 +69,7 @@ void
 SetupWindow::
 down()
 {
-    if (isUp()) { button_up->copy_label(key2str(octaveUp).c_str()); }
+    if (isUp()) { button_up->copy_label(key2str(bundle->octaveUp).c_str()); }
     button_down->label(EMPTY_TEXT);
     Fl::flush();
 }
@@ -82,7 +78,7 @@ void
 SetupWindow::
 up()
 {
-    if (isDown()) { button_down->copy_label(key2str(octaveDown).c_str()); }
+    if (isDown()) { button_down->copy_label(key2str(bundle->octaveDown).c_str()); }
     button_up->label(EMPTY_TEXT);
     Fl::flush();
 }
@@ -130,7 +126,7 @@ handle(int e)
         printf("@@ up %d\n", Fl::event_key());
         if (isDown() || isUp() || isKey()) {
             auto exists = [this](Key key) {
-                if (key == octaveDown || key == octaveUp) { return true; }
+                if (key == bundle->octaveDown || key == bundle->octaveUp) { return true; }
                 auto it = std::find_if(
                     bundle->noteKeyMap->begin(), bundle->noteKeyMap->end(),
                     [key](const auto &kv) { return kv.second == key; }
@@ -148,10 +144,10 @@ handle(int e)
 
             if (isDown()) {
                 button = button_down;
-                dst = &octaveDown;
+                dst = &bundle->octaveDown;
             } else if (isUp()) {
                 button = button_up;
-                dst = &octaveUp;
+                dst = &bundle->octaveUp;
             }
 
             if (!exists(key)) { 

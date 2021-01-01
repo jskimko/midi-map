@@ -102,7 +102,21 @@ convertCallback(double dt, std::vector<unsigned char> *msg, void *data)
     auto &noteKeyMap = *bundle->noteKeyMap;
 
     if (noteKeyMap.count(note)) {
-        bundle->controller->keyboard.sendKey(noteKeyMap[note]);
+        bundle->controller->keyboard.sendKeys<1>({noteKeyMap[note]});
+    } else {
+        if ((bundle->octaveDown != Key::NONE) && (Converter::octave(note) == bundle->minOctave - 1)) {
+            auto known = note + 12;
+            auto it = noteKeyMap.find(known);
+            if (it != noteKeyMap.end()) {
+                bundle->controller->keyboard.sendKeys<2>({bundle->octaveDown, noteKeyMap[known]});
+            }
+        } else if ((bundle->octaveUp != Key::NONE) && (Converter::octave(note) == bundle->maxOctave + 1)) {
+            auto known = note - 12;
+            auto it = noteKeyMap.find(known);
+            if (it != noteKeyMap.end()) {
+                bundle->controller->keyboard.sendKeys<2>({bundle->octaveUp, noteKeyMap[known]});
+            }
+        }
     }
 }
 

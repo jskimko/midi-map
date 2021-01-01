@@ -17,6 +17,12 @@ struct Bundle {
 
     unsigned char note;
     Key key;
+
+    unsigned char minOctave;
+    unsigned char maxOctave;
+
+    Key octaveDown;
+    Key octaveUp;
 };
 
 } // namespace midi
