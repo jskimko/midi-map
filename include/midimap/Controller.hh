@@ -3,6 +3,7 @@
 
 #include "midimap/Converter.hh"
 #include "midimap/Keyboard.hh"
+#include "midimap/NoteKeyMap.hh"
 
 #include <vector>
 #include <string>

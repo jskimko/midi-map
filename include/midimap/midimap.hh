@@ -5,8 +5,7 @@
 #include "midimap/Layout.hh"
 #include "midimap/Bundle.hh"
 #include "midimap/Key.hh"
-
-#include <unordered_map>
+#include "midimap/NoteKeyMap.hh"
 
 namespace midimap {
 
@@ -15,8 +14,6 @@ struct RegisterCallbacks;
 
 class MidiMap {
 public:
-    using NoteKeyMap = std::unordered_map<unsigned char, Key>;
-
     bool run();
 
 private:
@@ -40,7 +37,7 @@ private:
     static Layout& layout(MidiMap &client) { return client.layout(); }
     static Controller& controller(MidiMap &client) { return client.controller(); }
     static Bundle& bundle(MidiMap &client) { return client.bundle(); }
-    static MidiMap::NoteKeyMap& noteKeyMap(MidiMap &client) { return client.noteKeyMap(); }
+    static NoteKeyMap& noteKeyMap(MidiMap &client) { return client.noteKeyMap(); }
     friend RegisterCallbacks;
 };
 

@@ -90,6 +90,20 @@ void
 Controller::
 convertCallback(double dt, std::vector<unsigned char> *msg, void *data)
 {
+    if (msg->size() == 0) { return; }
+    auto *bundle = (Bundle*) data;
+
+    unsigned char status = (*msg)[0];
+    if ((status & 0xF0) != NOTE_ON) {
+        return;
+    }
+
+    auto note = (*msg)[1];
+    auto &noteKeyMap = *bundle->noteKeyMap;
+
+    if (noteKeyMap.count(note)) {
+        bundle->controller->keyboard.sendKey(noteKeyMap[note]);
+    }
 }
 
 void 

@@ -19,7 +19,7 @@ namespace {
     }
 
     std::string
-    noteKeyMap2str(MidiMap::NoteKeyMap const &map) {
+    noteKeyMap2str(NoteKeyMap const &map) {
         if (map.size() == 0) { return {}; }
 
         auto minOctave = Converter::octave(map.begin()->first);
@@ -119,6 +119,7 @@ run()
     layout_.setup->bundle = &bundle_;
     bundle_.controller = &controller_;
     bundle_.widget = layout_.setup->button;
+    bundle_.noteKeyMap = &noteKeyMap_;
     register_callbacks();
 
     layout_.show();
@@ -166,6 +167,16 @@ struct RegisterCallbacks {
     static void cb_start(Fl_Widget *w, void *data)
     {
         printf("@@ start\n");
+        auto *midiMap = (MidiMap*) data;
+        auto &ctrl    = Attorney::controller(*midiMap);
+        auto &bundle  = Attorney::bundle(*midiMap);
+        auto *button  = (Fl_Button*) w;
+
+        if (button->value()) {
+            ctrl.convert(bundle);
+        } else {
+            ctrl.stop();
+        }
     }
 
     static void cb_import(Fl_Widget *w, void *data)
