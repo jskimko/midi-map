@@ -13,9 +13,10 @@ struct Bundle;
 
 struct SetupWindow : public Fl_Window {
 public:
-    static constexpr char *NOTE_TEXT  = "Play a note:";
-    static constexpr char *KEY_TEXT   = "Press a key:";
-    static constexpr char *EMPTY_TEXT = "";
+    static constexpr char *NOTE_TEXT   = "Play a note:";
+    static constexpr char *KEY_TEXT    = "Press a key:";
+    static constexpr char *OCTAVE_TEXT = "Octave:";
+    static constexpr char *EMPTY_TEXT  = "";
 
     SetupWindow(int w, int h);
 
@@ -27,8 +28,12 @@ public:
 
     virtual int handle(int e) override;
 
-    Fl_Box    *box;
-    Fl_Button *button;
+    Fl_Box    *box_note;
+    Fl_Button *button_note;
+
+    Fl_Box    *box_octave;
+    Fl_Button *button_up;
+    Fl_Button *button_down;
 
     Bundle *bundle;
 };
