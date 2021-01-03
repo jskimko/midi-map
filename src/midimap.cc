@@ -19,6 +19,15 @@ namespace {
     int disable_shortcuts(int e) {
         return e == FL_SHORTCUT;
     }
+
+    std::string output(Key down, Key up, NoteKeyMap const &map)
+    {
+        std::stringstream ss;
+        ss << "Octave Down: " << key2str(down) << "\t"
+           << "Octave Up: " << key2str(up) << "\n\n"
+           << noteKeyMap2str(map);
+        return ss.str();
+    }
 }
 
 bool 
@@ -64,13 +73,22 @@ importMap(std::string const &fname)
     std::ifstream ifs(fname);
     if (ifs.is_open()) {
         noteKeyMap_.clear();
+        std::underlying_type<Key>::type octKey;
         NoteKeyMap::key_type key;
         std::underlying_type<NoteKeyMap::mapped_type>::type val;
+        decltype(bundle_.minOctave) oct;
+
+        ifs >> octKey; bundle_.octaveDown = Key(octKey);
+        ifs >> octKey; bundle_.octaveUp = Key(octKey);
+
+        ifs >> oct; bundle_.minOctave = oct;
+        ifs >> oct; bundle_.maxOctave = oct;
+
         while (ifs >> key >> val) {
             noteKeyMap_.insert({key, Key(val)});
         }
 
-        layout_.output->value(noteKeyMap2str(noteKeyMap_).c_str());
+        layout_.output->value(output(bundle_.octaveDown, bundle_.octaveUp, noteKeyMap_).c_str());
         Fl::flush();
 
         fl_alert("Imported from file '%s'", fname.c_str());
@@ -85,6 +103,10 @@ exportMap(std::string const &fname) const
 {
     std::ofstream ofs(fname);
     if (ofs.is_open()) {
+        ofs << static_cast<std::underlying_type<Key>::type>(bundle_.octaveDown) << " "
+            << static_cast<std::underlying_type<Key>::type>(bundle_.octaveUp) << "\n";
+        ofs << bundle_.minOctave << " "
+            << bundle_.maxOctave << "\n";
         for (auto const &kv : noteKeyMap_) {
             ofs << kv.first << " " 
                 << static_cast<std::underlying_type<NoteKeyMap::mapped_type>::type>(kv.second)
@@ -100,7 +122,6 @@ struct RegisterCallbacks {
 
     static void cb_window(Fl_Widget *w, void *data)
     {
-        printf("@@ window\n");
         auto *midiMap = (MidiMap*) data;
         auto &layout  = Attorney::layout(*midiMap);
         auto &ctrl    = Attorney::controller(*midiMap);
@@ -111,7 +132,6 @@ struct RegisterCallbacks {
 
     static void cb_choice(Fl_Widget *w, void *data)
     {
-        printf("@@ choice\n");
         auto *midiMap = (MidiMap*) data;
         auto &layout  = Attorney::layout(*midiMap);
         auto &ctrl    = Attorney::controller(*midiMap);
@@ -122,7 +142,6 @@ struct RegisterCallbacks {
 
     static void cb_setup(Fl_Widget *w, void *data)
     {
-        printf("@@ setup\n");
         auto *midiMap = (MidiMap*) data;
         auto &layout  = Attorney::layout(*midiMap);
         auto &ctrl    = Attorney::controller(*midiMap);
@@ -134,7 +153,6 @@ struct RegisterCallbacks {
 
     static void cb_start(Fl_Widget *w, void *data)
     {
-        printf("@@ start\n");
         auto *midiMap = (MidiMap*) data;
         auto &ctrl    = Attorney::controller(*midiMap);
         auto &bundle  = Attorney::bundle(*midiMap);
@@ -149,7 +167,6 @@ struct RegisterCallbacks {
 
     static void cb_import(Fl_Widget *w, void *data)
     {
-        printf("@@ import\n");
         auto *midiMap = (MidiMap*) data;
         auto &layout  = Attorney::layout(*midiMap);
 
@@ -158,31 +175,19 @@ struct RegisterCallbacks {
 
     static void cb_export(Fl_Widget *w, void *data)
     {
-        printf("@@ export\n");
         auto *midiMap = (MidiMap*) data;
         auto &layout  = Attorney::layout(*midiMap);
 
         Attorney::exportMap(*midiMap, layout.input_export->value());
     }
 
-    static std::string output(MidiMap *midiMap) 
-    {
-        auto &bundle     = Attorney::bundle(*midiMap);
-        auto &noteKeyMap = Attorney::noteKeyMap(*midiMap);
-        std::stringstream ss;
-        ss << "Octave Down: " << key2str(bundle.octaveDown) << "\t"
-           << "Octave Up: " << key2str(bundle.octaveUp) << "\n\n"
-           << noteKeyMap2str(noteKeyMap);
-        return ss.str();
-    }
-
     static void cb_setup_window(Fl_Widget *w, void *data)
     {
-        printf("@@ setup_window\n");
         auto *midiMap    = (MidiMap*) data;
         auto &layout     = Attorney::layout(*midiMap);
         auto &ctrl       = Attorney::controller(*midiMap);
         auto &noteKeyMap = Attorney::noteKeyMap(*midiMap);
+        auto &bundle     = Attorney::bundle(*midiMap);
 
         auto it = noteKeyMap.begin();
         while (it != noteKeyMap.end()) {
@@ -193,7 +198,7 @@ struct RegisterCallbacks {
             }
         }
 
-        layout.output->value(output(midiMap).c_str());
+        layout.output->value(output(bundle.octaveDown, bundle.octaveUp, noteKeyMap).c_str());
 
         layout.setup->hide();
         layout.setup->note();
@@ -202,7 +207,6 @@ struct RegisterCallbacks {
 
     static void cb_note(Fl_Widget *w, void *data)
     {
-        printf("@@ note\n");
         auto *midiMap    = (MidiMap*) data;
         auto &layout     = Attorney::layout(*midiMap);
         auto &ctrl       = Attorney::controller(*midiMap);
@@ -243,7 +247,8 @@ struct RegisterCallbacks {
                     }
                 }
             }
-            layout.output->value(output(midiMap).c_str());
+
+        layout.output->value(output(bundle.octaveDown, bundle.octaveUp, noteKeyMap).c_str());
 
             layout.setup->note();
             ctrl.read(bundle);
@@ -252,7 +257,6 @@ struct RegisterCallbacks {
 
     static void cb_down(Fl_Widget *w, void *data)
     {
-        printf("@@ down\n");
         auto *midiMap    = (MidiMap*) data;
         auto &layout     = Attorney::layout(*midiMap);
 
@@ -261,7 +265,6 @@ struct RegisterCallbacks {
 
     static void cb_up(Fl_Widget *w, void *data)
     {
-        printf("@@ up\n");
         auto *midiMap    = (MidiMap*) data;
         auto &layout     = Attorney::layout(*midiMap);
 
