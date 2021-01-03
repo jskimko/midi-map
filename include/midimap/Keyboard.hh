@@ -33,14 +33,12 @@ sendKeys(std::array<Key, N> keys) const
     for (decltype(N) i=0; i<N; i++) {
         inputs[i].type = INPUT_KEYBOARD;
         inputs[i].ki.wVk = key2win(keys[i]);
-        printf("(( %d\n", key2win(keys[i]));
     }
 
     for (decltype(N) i=N; i<N*2; i++) {
         inputs[i].type = INPUT_KEYBOARD;
         inputs[i].ki.wVk = key2win(keys[N - (i % N) - 1]);
         inputs[i].ki.dwFlags = KEYEVENTF_KEYUP;
-        printf(")) %d\n", key2win(keys[N - (i % N) - 1]));
     }
 
     return SendInput(ARRAYSIZE(inputs), inputs, sizeof(INPUT)) == ARRAYSIZE(inputs);
