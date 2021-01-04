@@ -73,8 +73,8 @@ readCallback(double dt, std::vector<unsigned char> *msg, void *data)
     if (msg->size() == 0) { return; }
     auto *bundle = (Bundle*) data;
 
-    unsigned char status = (*msg)[0];
-    if ((status & 0xF0) != NOTE_ON) {
+    unsigned char status = (*msg)[0] & 0xF0;
+    if (status != NOTE_ON) {
         return;
     }
 
@@ -93,28 +93,32 @@ convertCallback(double dt, std::vector<unsigned char> *msg, void *data)
     if (msg->size() == 0) { return; }
     auto *bundle = (Bundle*) data;
 
-    unsigned char status = (*msg)[0];
-    if ((status & 0xF0) != NOTE_ON) {
+    unsigned char status = (*msg)[0] & 0xF0;
+    if (status != NOTE_ON && status != NOTE_OFF) {
         return;
     }
 
+    auto on = status == NOTE_ON;
     auto note = (*msg)[1];
     auto &noteKeyMap = *bundle->noteKeyMap;
 
     if (noteKeyMap.count(note)) {
-        bundle->controller->keyboard.sendKeys<1>({noteKeyMap[note]});
+        if (on) { bundle->controller->keyboard.sendKeys<1, true>({noteKeyMap[note]}); }
+        else    { bundle->controller->keyboard.sendKeys<1, false>({noteKeyMap[note]}); }
     } else {
         if ((bundle->octaveDown != Key::NONE) && (Converter::octave(note) == bundle->minOctave - 1)) {
             auto known = note + 12;
             auto it = noteKeyMap.find(known);
             if (it != noteKeyMap.end()) {
-                bundle->controller->keyboard.sendKeys<2>({bundle->octaveDown, noteKeyMap[known]});
+                if (on) { bundle->controller->keyboard.sendKeys<2, true>({bundle->octaveDown, noteKeyMap[known]}); }
+                else    { bundle->controller->keyboard.sendKeys<2, false>({noteKeyMap[known], bundle->octaveDown}); }
             }
         } else if ((bundle->octaveUp != Key::NONE) && (Converter::octave(note) == bundle->maxOctave + 1)) {
             auto known = note - 12;
             auto it = noteKeyMap.find(known);
             if (it != noteKeyMap.end()) {
-                bundle->controller->keyboard.sendKeys<2>({bundle->octaveUp, noteKeyMap[known]});
+                if (on) { bundle->controller->keyboard.sendKeys<2, true>({bundle->octaveUp, noteKeyMap[known]}); }
+                else    { bundle->controller->keyboard.sendKeys<2, false>({noteKeyMap[known], bundle->octaveUp}); }
             }
         }
     }
@@ -131,6 +135,7 @@ void
 Controller::
 convert(Bundle &bundle)
 {
+    keyboard.start();
     input->setCallback(&convertCallback, &bundle);
 }
 
@@ -138,6 +143,7 @@ void
 Controller::
 stop()
 {
+    keyboard.stop();
     input->cancelCallback();
 }
 

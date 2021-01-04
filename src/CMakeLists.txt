@@ -9,6 +9,11 @@ add_library(midimap-lib
     NoteKeyMap.cc
 )
 
+target_compile_features(midimap-lib
+	PUBLIC
+        cxx_std_17 # if constexpr
+)
+
 target_include_directories(midimap-lib
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>

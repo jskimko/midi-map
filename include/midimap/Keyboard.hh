@@ -4,6 +4,7 @@
 #include "midimap/Key.hh"
 
 #include <array>
+#include <future>
 
 namespace midimap {
 
@@ -12,36 +13,73 @@ public:
     Keyboard();
     ~Keyboard();
 
-    template <int N>
-    bool sendKeys(std::array<Key, N> keys) const;
+    template <int N, bool Press>
+    void sendKeys(std::array<Key, N> keys);
+
+    void start();
+    void stop();
 
 private:
-#if defined XLIB
+    std::promise<void> p;
+    std::thread t;
+    std::mutex m;
+
+#if defined _WIN32
+    std::vector<INPUT> inputs;
+#elif defined XLIB
     Display *display;
 #endif
 };
 
-template <int N>
-bool
+template <int N, bool Press>
+void
 Keyboard::
-sendKeys(std::array<Key, N> keys) const
+sendKeys(std::array<Key, N> keys)
 {
 #if defined _WIN32
-    INPUT inputs[N*2];
-    ZeroMemory(inputs, sizeof(inputs));
+    if constexpr (Press) {
+        INPUT in[N];
+        ZeroMemory(in, sizeof(in));
 
-    for (decltype(N) i=0; i<N; i++) {
-        inputs[i].type = INPUT_KEYBOARD;
-        inputs[i].ki.wVk = key2win(keys[i]);
+        for (decltype(N) i=0; i<N; i++) {
+            in[i].type = INPUT_KEYBOARD;
+            in[i].ki.wVk = key2win(keys[i]);
+        }
+
+        // send initial keypress asap.
+        SendInput(ARRAYSIZE(in), in, sizeof(INPUT));
+
+        // update the repeater.
+        {
+            std::lock_guard<std::mutex> lock(m);
+            auto size = inputs.size();
+            inputs.resize(size + N);
+            CopyMemory(inputs.data() + size, in, sizeof(in));
+        }
+    } else {
+        // stop the repeater asap.
+        std::array<decltype(key2win(keys.front())), N> wins;
+        std::transform(keys.begin(), keys.end(), wins.begin(), key2win);
+        {
+            std::lock_guard<std::mutex> lock(m);
+            inputs.erase(std::remove_if(inputs.begin(), inputs.end(), [&wins](auto const &input) {
+                return std::find(wins.begin(), wins.end(), input.ki.wVk) != wins.end();
+            }), inputs.end());
+        }
+
+        // send keyup.
+        INPUT in[N];
+        ZeroMemory(in, sizeof(in));
+
+        for (decltype(N) i=0; i<N; i++) {
+            in[i].type = INPUT_KEYBOARD;
+            in[i].ki.wVk = key2win(keys[i]);
+            in[i].ki.dwFlags = KEYEVENTF_KEYUP;
+        }
+
+        SendInput(ARRAYSIZE(in), in, sizeof(INPUT));
     }
-
-    for (decltype(N) i=N; i<N*2; i++) {
-        inputs[i].type = INPUT_KEYBOARD;
-        inputs[i].ki.wVk = key2win(keys[N - (i % N) - 1]);
-        inputs[i].ki.dwFlags = KEYEVENTF_KEYUP;
-    }
-
-    return SendInput(ARRAYSIZE(inputs), inputs, sizeof(INPUT)) == ARRAYSIZE(inputs);
+    
 #elif defined XLIB
     if (!display) { return false; }
 
