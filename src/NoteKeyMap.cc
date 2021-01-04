@@ -45,7 +45,7 @@ std::string noteKeyMap2str(NoteKeyMap const &map)
 
     auto format_entry = [&maxSymLens, &maxKeyLens](std::stringstream &ss, 
                                                    std::pair<unsigned char, Key> const &p,
-                                                   int col) {
+                                                   decltype(octaves.size()) col) {
         ss << std::left << std::setfill(' ') << std::setw(maxSymLens[col])
            << Converter::symbol(p.first) << " -> " 
            << std::setw(maxKeyLens[col]) << key2str(p.second);

@@ -36,11 +36,11 @@ SetupWindow(int w, int h)
 
     button_down = new Fl_Button(0, 0, w / 3, h_half / 3);
     button_down->clear_visible_focus();
-    center_on(button_down, w * 0.25 , h_half + 2 * h_half / 3);
+    center_on(button_down, (int) (w * 0.25), (int) (h_half + 2 * h_half / 3));
 
     button_up = new Fl_Button(0, 0, w / 3, h_half / 3);
     button_up->clear_visible_focus();
-    center_on(button_up, w * 0.75 , h_half + 2 * h_half / 3);
+    center_on(button_up, (int) (w * 0.75), (int) (h_half + 2 * h_half / 3));
 
     this->end();
 }
