@@ -10,7 +10,7 @@ add_library(midimap-lib
 )
 
 target_compile_features(midimap-lib
-	PUBLIC
+    PUBLIC
         cxx_std_17 # if constexpr
 )
 
@@ -19,8 +19,8 @@ target_include_directories(midimap-lib
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
         $<INSTALL_INTERFACE:include>
     PRIVATE
-        "${RtMidi_INCLUDE_DIRS}"
-        "${FLTK_INCLUDE_DIRS}"
+        "${RtMidi_INCLUDE_DIR}"
+        "${FLTK_INCLUDE_DIR}"
 )
 
 target_link_libraries(midimap-lib
@@ -35,10 +35,10 @@ target_link_directories(midimap-lib
 )
 
 if(NOT WIN32)
-	target_compile_definitions(midimap-lib PUBLIC XLIB)
+    target_compile_definitions(midimap-lib PUBLIC XLIB)
     if(X11_XTest_FOUND)
         target_compile_definitions(midimap-lib PUBLIC XTEST)
-	endif()
+    endif()
 
     target_include_directories(midimap-lib
         PUBLIC
