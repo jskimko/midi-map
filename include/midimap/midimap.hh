@@ -4,7 +4,6 @@
 #include "midimap/Controller.hh"
 #include "midimap/Layout.hh"
 #include "midimap/Bundle.hh"
-#include "midimap/Key.hh"
 #include "midimap/NoteKeyMap.hh"
 
 namespace midimap {

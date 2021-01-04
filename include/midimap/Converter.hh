@@ -13,15 +13,10 @@ public:
     static unsigned char octave(unsigned char num);
     static std::string symbol(unsigned char num);
 
-    Converter();
     void insert(std::string sym, Key key);
 
 private:
     static std::unordered_map<unsigned char, std::string> num2sym;
-
-    std::unordered_map<std::string, Key> sym2key;
-    Key octaveUp;
-    Key octaveDown;
 };
 
 } // namespace midimap

@@ -11,8 +11,6 @@
 #include <fstream>
 #include <type_traits>
 
-#include <cstdio>
-
 namespace midimap {
 
 namespace {
@@ -72,7 +70,6 @@ importMap(std::string const &fname)
 {
     std::ifstream ifs(fname);
     if (ifs.is_open()) {
-        noteKeyMap_.clear();
         std::underlying_type<Key>::type octKey;
         NoteKeyMap::key_type key;
         std::underlying_type<NoteKeyMap::mapped_type>::type val;
@@ -84,6 +81,7 @@ importMap(std::string const &fname)
         ifs >> oct; bundle_.minOctave = oct;
         ifs >> oct; bundle_.maxOctave = oct;
 
+        noteKeyMap_.clear();
         while (ifs >> key >> val) {
             noteKeyMap_.insert({key, Key(val)});
         }
@@ -124,7 +122,6 @@ struct RegisterCallbacks {
     {
         auto *midiMap = (MidiMap*) data;
         auto &layout  = Attorney::layout(*midiMap);
-        auto &ctrl    = Attorney::controller(*midiMap);
 
         layout.setup->hide();
         layout.window->hide();
@@ -189,6 +186,7 @@ struct RegisterCallbacks {
         auto &noteKeyMap = Attorney::noteKeyMap(*midiMap);
         auto &bundle     = Attorney::bundle(*midiMap);
 
+        // clean up unfinished mappings.
         auto it = noteKeyMap.begin();
         while (it != noteKeyMap.end()) {
             if (it->second == Key::NONE) {
@@ -198,8 +196,10 @@ struct RegisterCallbacks {
             }
         }
 
+        // display output.
         layout.output->value(output(bundle.octaveDown, bundle.octaveUp, noteKeyMap).c_str());
 
+        // reset setup window.
         layout.setup->hide();
         layout.setup->note();
         ctrl.stop();
@@ -216,25 +216,31 @@ struct RegisterCallbacks {
         if (layout.setup->isEmpty()) {
             return; 
         } else if (layout.setup->isNote()) {
+            // add new entry for recorded bundle.note
             ctrl.stop();
             noteKeyMap[bundle.note] = Key::NONE;
 
+            // begin reading key presses.
             layout.setup->key();
         } else if (layout.setup->isKey()) {
+            // find new entry (val == Key::NONE).
             auto it = std::find_if(
                 noteKeyMap.begin(), noteKeyMap.end(),
                 [](const auto &kv) { return kv.second == Key::NONE; }
             );
 
             if (it != noteKeyMap.end()) {
+                // check if the mapping exists.
                 auto exists = std::find_if(
                     noteKeyMap.begin(), noteKeyMap.end(),
                     [&bundle](const auto &kv) { return kv.second == bundle.key; }
                 );
                 if (exists != noteKeyMap.end()) { return; }
 
+                // save the mapping.
                 it->second = bundle.key;
 
+                // set min-max octave.
                 auto octave = Converter::octave(it->first);
                 if (noteKeyMap.size() == 1) {
                     bundle.minOctave = octave;
@@ -248,8 +254,10 @@ struct RegisterCallbacks {
                 }
             }
 
-        layout.output->value(output(bundle.octaveDown, bundle.octaveUp, noteKeyMap).c_str());
+            // update display.
+            layout.output->value(output(bundle.octaveDown, bundle.octaveUp, noteKeyMap).c_str());
 
+            // back to note reading.
             layout.setup->note();
             ctrl.read(bundle);
         }
@@ -260,6 +268,7 @@ struct RegisterCallbacks {
         auto *midiMap    = (MidiMap*) data;
         auto &layout     = Attorney::layout(*midiMap);
 
+        // begin reading key for down octave.
         layout.setup->down();
     }
 
@@ -268,6 +277,7 @@ struct RegisterCallbacks {
         auto *midiMap    = (MidiMap*) data;
         auto &layout     = Attorney::layout(*midiMap);
 
+        // begin reading key for up octave.
         layout.setup->up();
     }
 

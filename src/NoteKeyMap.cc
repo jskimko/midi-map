@@ -12,6 +12,7 @@ std::string noteKeyMap2str(NoteKeyMap const &map)
 {
     if (map.size() == 0) { return {}; }
 
+    // find min and max octave numbers.
     auto minOctave = Converter::octave(map.begin()->first);
     auto maxOctave = minOctave;
 
@@ -21,12 +22,14 @@ std::string noteKeyMap2str(NoteKeyMap const &map)
         else if (octave > maxOctave) { maxOctave = octave; }
     }
 
+    // create a vector for each octave.
     std::vector<std::vector<std::pair<unsigned char, Key>>> octaves(maxOctave - minOctave + 1);
     for (auto it=map.begin(); it != map.end(); it++) {
         auto o = Converter::octave(it->first) - minOctave;
         octaves[o].push_back(*it);
     }
 
+    // determine max lengths for column formatting.
     std::vector<std::string::size_type> maxSymLens(octaves.size());
     std::vector<std::string::size_type> maxKeyLens(octaves.size());
     for (decltype(octaves.size()) i=0; i<octaves.size(); i++) {
@@ -56,10 +59,12 @@ std::string noteKeyMap2str(NoteKeyMap const &map)
         if (!last) { ss << " | "; }
     };
 
+    // format row-by-row.
     std::stringstream ss;
     decltype(octaves[0].size()) r=0;
     std::vector<std::string::size_type> maxEntryLens(octaves.size());
     while (1) {
+        // check if no more rows remaining.
         bool any = false;
         for (decltype(octaves.size()) c=0; c<octaves.size(); c++) {
             if (r < octaves[c].size()) {
@@ -69,6 +74,7 @@ std::string noteKeyMap2str(NoteKeyMap const &map)
         }
         if (!any) { break; }
 
+        // add a column entry, if it exists.
         for (decltype(octaves.size()) c=0; c<octaves.size(); c++) {
             std::stringstream entry;
             if (r < octaves[c].size()) {

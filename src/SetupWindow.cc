@@ -49,8 +49,11 @@ void
 SetupWindow::
 note()
 {
+    // clear octave reading state.
     if (isUp()) { button_up->copy_label(key2str(bundle->octaveUp).c_str()); }
     else if (isDown()) { button_down->copy_label(key2str(bundle->octaveDown).c_str()); }
+
+    // set note reading state.
     box_note->label(NOTE_TEXT);
     button_note->label(EMPTY_TEXT);
 }
@@ -59,8 +62,11 @@ void
 SetupWindow::
 key()
 {
+    // clear octave reading state.
     if (isUp()) { button_up->copy_label(key2str(bundle->octaveUp).c_str()); }
     else if (isDown()) { button_down->copy_label(key2str(bundle->octaveDown).c_str()); }
+
+    // set key reading state.
     box_note->label(KEY_TEXT);
     button_note->label(EMPTY_TEXT);
 }
@@ -69,7 +75,10 @@ void
 SetupWindow::
 down()
 {
+    // clear up octave reading state.
     if (isUp()) { button_up->copy_label(key2str(bundle->octaveUp).c_str()); }
+
+    // set down octave reading state.
     button_down->label(EMPTY_TEXT);
     Fl::flush();
 }
@@ -78,7 +87,10 @@ void
 SetupWindow::
 up()
 {
+    // clear down octave reading state.
     if (isDown()) { button_down->copy_label(key2str(bundle->octaveDown).c_str()); }
+
+    // set up octave reading state.
     button_up->label(EMPTY_TEXT);
     Fl::flush();
 }
@@ -123,8 +135,8 @@ SetupWindow::
 handle(int e)
 {
     if (e == FL_KEYUP) {
-        printf("@@ up %d\n", Fl::event_key());
         if (isDown() || isUp() || isKey()) {
+            // check if key up exists in map or octave keys.
             auto exists = [this](Key key) {
                 if (key == bundle->octaveDown || key == bundle->octaveUp) { return true; }
                 auto it = std::find_if(

@@ -22,6 +22,7 @@ unsigned char
 Converter::
 octave(unsigned char num)
 {
+    // A0 == 21, 12 half steps per octave
     return (num - 21) / 12;
 }
 
@@ -29,15 +30,9 @@ std::string
 Converter::
 symbol(unsigned char num)
 {
+    // A0 == 21, 12 half steps per octave
     auto note = [](unsigned char n) { return ((n - 21) % 12) + 21; };
     return num2sym.at(note(num)) + std::to_string(octave(num));
-}
-
-Converter::
-Converter()
-    : octaveUp(Key::NONE),
-      octaveDown(Key::NONE)
-{
 }
 
 } // namespace midimap
